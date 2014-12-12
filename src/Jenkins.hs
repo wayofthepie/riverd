@@ -49,7 +49,7 @@ data BuildConfig = BuildConfig {
         buildWrappers   :: Maybe [String]
     } deriving (Eq, Show)-}
 
-
+{-
 data SCM = SCM {
         scmClass        :: String
     } deriving (Eq, Show)
@@ -93,9 +93,9 @@ retrieveConfig =
 
 bcResult :: IO ()
 bcResult = do 
-    doc     <- xtr retrieveConfig
+    doc     <- retrieveConfig
     xml     <- return $ parseXml doc
     result  <- runX ( xml >>> getBuildConfig )
     case result of
         []  -> putStrLn "Error parsing..."
-        w:_ -> print w
+        w:_ -> print w-}
