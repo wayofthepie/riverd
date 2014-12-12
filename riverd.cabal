@@ -36,10 +36,13 @@ executable riverd
 
 library
     hs-source-dirs:     src 
-    exposed-modules:    Jenkins
+    exposed-modules:    Jenkins, GitAnalyzer
     build-depends:      base >=4.7 && <4.8,
                         libjenkins,
                         lens,
                         lens-aeson,
                         hxt,
-                        bytestring 
+                        bytestring,
+                        filepath,
+                        directory,
+                        process 
