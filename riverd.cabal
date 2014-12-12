@@ -36,7 +36,7 @@ executable riverd
 
 library
     hs-source-dirs:     src 
-    exposed-modules:    Jenkins, GitAnalyzer
+    exposed-modules:    Jenkins, GitAnalyzer, Dockerfile
     build-depends:      base >=4.7 && <4.8,
                         libjenkins,
                         lens,
