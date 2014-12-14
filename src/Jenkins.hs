@@ -4,26 +4,27 @@
 module Jenkins where
 
 import Control.Lens hiding (deep)           -- lens
-import Control.Monad
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Control
 import Data.Aeson.Lens                      -- lens-aeson
-import Data.ByteString.Lazy.Internal
 import Data.Map (empty)
 import Data.Text hiding (empty)
 import Jenkins.Rest (Jenkins, (-?-), (-=-)) -- libjenkins
 import qualified Jenkins.Rest as JR
 import Text.Hamlet.XML
-import Text.XML.HXT.Core 
 import Text.XML
 
--- Hardcode the master for now
+
+-- | The jenkins master (hardcoded for now)
 master :: JR.Master
 master = JR.defaultMaster &
     JR.url .~ "http://192.168.59.103:8080"
 
-config :: Element
-config = Element "project" empty [xml|
+
+-- | Test configration, describes a job with a single build step that 
+-- echoes test
+testConfig :: Element
+testConfig = Element "project" empty [xml|
     <actions>
     <description>
     <keepDependencies>
@@ -45,12 +46,14 @@ config = Element "project" empty [xml|
     <buildWrappers>
 |]
 
-createJob :: ( MonadBaseControl IO m, MonadIO m ) => Text -> m ( JR.Result () )
-createJob n = 
+
+-- | Create a job named __n__ with the config __c__
+createJob :: ( MonadBaseControl IO m, MonadIO m ) => Text -> Element -> m ( JR.Result () )
+createJob n c = 
     JR.run (JR.defaultMaster &
         JR.url .~ ("http://192.168.59.103:8080/")) $
-            JR.postXml ("createItem" -?- "name" -=- n) configData
-    where
-        configData = renderLBS def $ Document (Prologue [] Nothing []) config []
+            JR.postXml ("createItem" -?- "name" -=- n) $ e2bs c
+    where 
+        e2bs xml = renderLBS def $ Document (Prologue [] Nothing []) xml  []
 
 
