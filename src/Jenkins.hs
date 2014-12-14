@@ -57,7 +57,7 @@ data BuildPlan = BuildPlan {
 
 
 testPlan = BuildPlan { 
-    repoUrl = "https://github.com/kevinsawicki/github-maven-example",
+    repoUrl = "https://github.com/wayofthepie/github-maven-example",
     buildWith = "mvn",
     extraParams = ["clean", "install"]
 }
