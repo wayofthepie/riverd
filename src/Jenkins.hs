@@ -14,6 +14,8 @@ import qualified Jenkins.Rest as JR
 import Text.Hamlet.XML
 import Text.XML
 
+import Prelude hiding (unwords)
+
 
 -- | The jenkins master (hardcoded for now)
 master :: JR.Master
@@ -42,6 +44,67 @@ testConfig = Element "project" empty [xml|
         <hudson.tasks.Shell>
             <command>
                 echo "test"
+    <publishers>
+    <buildWrappers>
+|]
+
+
+data BuildPlan = BuildPlan {
+        repoUrl     :: Text,
+        buildWith   :: Text,
+        extraParams :: [Text]        
+    } deriving(Eq, Show)
+
+
+testPlan = BuildPlan { 
+    repoUrl = "https://github.com/kevinsawicki/github-maven-example",
+    buildWith = "mvn",
+    extraParams = ["clean", "install"]
+}
+
+
+gitPluginVersion = "git@2.3.1"
+
+-- | 
+-- To be accurate about plugin values, the api should be queried at 
+-- http://(jenkins)/pluginManager/api/json?depth=1. 
+--
+-- TODO: Create a converter for plans to xml.
+plan2Cfg :: BuildPlan -> Element
+plan2Cfg b = Element "project" empty [xml|
+    <actions>
+    <description>
+    <keepDependencies>
+        false
+    <properties>
+    <scm class=hudson.plugins.git.GitSCM plugin=#{gitPluginVersion}>
+        <configVersion>
+            2
+        <userRemoteConfigs>
+            <hudson.plugins.git.UserRemoteConfig>
+                <url>#{repoUrl b}
+        <branches>
+            <hudson.plugins.git.BranchSpec>
+                <name>
+                    */master
+        <doGenerateSubmoduleConfigurations>
+            false
+        <submoduleCfg class="list">
+        <extensions>
+    <canRoam>
+        true
+    <disabled> 
+        false
+    <blockBuildWhenDownstreamBuilding>
+        false
+    <blockBuildWhenUpstreamBuilding>
+        false
+    <triggers>
+    <concurrentBuild>
+        false
+    <builders>
+        <hudson.tasks.Shell>
+            <command>#{buildWith b} #{unwords $ extraParams b}
     <publishers>
     <buildWrappers>
 |]

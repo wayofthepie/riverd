@@ -51,4 +51,7 @@ library
                         process,
                         text,
                         xml-hamlet,
-                        containers 
+                        containers,
+                        transformers,
+                        monad-control,
+                        github 
