@@ -9,7 +9,8 @@ import System.Process
 
 data BuildSystem = BuildSystem {
         buildSystem :: String
-    } deriving (Eq, Show) 
+    } deriving (Eq, Show)
+
 data SimpleMavenPlan = SimpleMavenPlan {
         pathToPom   :: FilePath,
         goals       :: [String]
@@ -17,24 +18,24 @@ data SimpleMavenPlan = SimpleMavenPlan {
 
 
 getBuildSystem :: FilePath -> IO ( Maybe BuildSystem )
-getBuildSystem f = doesDirectoryExist f >>= 
+getBuildSystem f = doesDirectoryExist f >>=
     \x -> case x of
         True    -> analyze f
-        False   -> error "Not a directory ..." 
+        False   -> error "Not a directory ..."
 
 analyze :: FilePath -> IO ( Maybe BuildSystem )
-analyze f = getDirectoryContents f >>= 
-      \lf -> if elem "build.gradle" lf then 
+analyze f = getDirectoryContents f >>=
+      \lf -> if elem "build.gradle" lf then
                 return $ Just $ gen "gradle"
              else if elem "pom.xml" lf then
                 return $ Just $ gen "maven"
-             else 
+             else
                 return Nothing
     where gen s = BuildSystem { buildSystem = s }
 
 
 
--- | Convert an execution plan to a runnable process 
+-- | Convert an execution plan to a runnable process
 -- Just deal with SimpleMavenPlan's for now
 planToProcess :: SimpleMavenPlan -> CreateProcess
 planToProcess ( SimpleMavenPlan p gs ) =
