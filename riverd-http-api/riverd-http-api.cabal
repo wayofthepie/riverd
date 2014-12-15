@@ -21,8 +21,19 @@ library
     hs-source-dirs:     src
     exposed-modules:
         Api
+        Api.Project
+
     build-depends:
-        base >=4.7 && < 4.8,
-        aeson >=0.7 && < 0.9
+        base                >=4.7 && < 4.8,
+        aeson               >=0.7 && < 0.9,
+        generic-aeson       == 0.2.0.2,
+        hxt                 == 9.3.1.9,
+        json-schema         == 0.7.3.0,
+        mtl                 == 2.2.1,
+        regular             == 0.3.4.3,
+        rest-core           == 0.33.1.2,
+        regular-xmlpickler  == 0.2,
+        text                == 1.2.0.3
+
 
 
