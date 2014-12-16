@@ -2,7 +2,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 
-module RiverdSpec where
+module RiverdSpec
+    ( RiverdSpec
+    , Build
+    , readSpec
+    ) where
 
 import Control.Applicative
 import Control.Monad
@@ -18,10 +22,20 @@ data RiverdSpec = RiverdSpec
     , builds        :: [Build]
     } deriving (Eq, Generic, Show)
 
+rSpecProjectName    = projectName
+rSpecRepoUrl        = repoUrl
+rSpecBranchSpec     = branchSpec
+rSpecBuilds         = builds
+
+
 data Build = Build
     { buildSystem  :: Text
     , buildParams  :: [Text]
     } deriving (Eq, Generic, Show)
+
+rSpecBuildSystem    = buildSystem
+rSpecBuildParams    = buildParams
+
 
 instance FromJSON RiverdSpec
 instance ToJSON RiverdSpec
