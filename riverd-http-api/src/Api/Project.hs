@@ -21,41 +21,41 @@ import Text.XML.HXT.Arrow.Pickle
 
 type Title = String
 
-data Post = Post
+data Project = Project
     { title :: Title
     , content :: String
     } deriving (Generic, Typeable, Show)
 
-deriveAll ''Post "PFPost"
+deriveAll ''Project "PFProject"
 
-type instance PF Post = PFPost
-instance FromJSON   Post where parseJSON = gparseJson
-instance ToJSON     Post where toJSON    = gtoJson
-instance JSONSchema Post where schema    = gSchema
-instance XmlPickler Post where xpickle   = gxpickle
+type instance PF Project = PFProject
+instance FromJSON   Project where parseJSON = gparseJson
+instance ToJSON     Project where toJSON    = gtoJson
+instance JSONSchema Project where schema    = gSchema
+instance XmlPickler Project where xpickle   = gxpickle
 
 resource :: Resource IO (ReaderT Title IO) Title () Void
 resource = mkResourceReader
-    { R.name    = "post"
+    { R.name    = "project"
     , R.schema  = withListing () $ named [("title", singleBy id)]
     , R.list    = const list
     , R.get     = Just get
     }
 
 get :: Handler (ReaderT Title IO)
-get = mkIdHandler xmlJsonO $ \_ title -> liftIO $ readPost title
+get = mkIdHandler xmlJsonO $ \_ title -> liftIO $ readProject title
 
-readPost :: Title -> IO Post
-readPost t = return $ Post { title = t, content = "Hey!" }
+readProject :: Title -> IO Project
+readProject t = return $ Project { title = t, content = "Hey!" }
 
 list :: ListHandler IO
-list = mkListing xmlJsonO $ \range -> lift $ readPosts (offset range) (count range)
+list = mkListing xmlJsonO $ \range -> lift $ readProjects (offset range) (count range)
 
-readPosts :: Int -> Int -> IO [Post]
-readPosts _ _ = return
+readProjects :: Int -> Int -> IO [Project]
+readProjects _ _ = return
     [
-        Post { title = "Post One", content = "First." },
-        Post { title = "Post Two", content = "Second!" }
+        Project { title = "Project One", content = "First." },
+        Project { title = "Project Two", content = "Second!" }
     ]
 
 
