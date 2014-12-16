@@ -18,42 +18,20 @@ cabal-version:       >=1.10
 
 executable riverd
   main-is:              Main.hs
-  other-modules:        Jenkins
+  -- other-modules:
   -- other-extensions:
   build-depends:        base >=4.7 && <4.8,
-                        happstack-server,
-                        gitlib,
-                        libjenkins,
-                        filepath,
-                        text,
-                        transformers,
-                        mtl,
-                        exceptions,
-                        lens-aeson,
-                        lens,
-                        text
+                        happstack-server == 7.3.9,
+                        mtl == 2.2.1,
+                        riverd-http-api == 0.0.0.1,
+                        rest-happstack == 0.2.10.3
+
 
   hs-source-dirs:       src
   default-language:     Haskell2010
 
 library
     hs-source-dirs:     src
-    exposed-modules:    Jenkins, GitAnalyzer, Dockerfile
+    exposed-modules:    Dockerfile
     build-depends:      base >=4.7 && <4.8,
-                        libjenkins,
-                        lens,
-                        lens-aeson,
-                        hxt,
-                        hxt-xpath,
-                        xml-conduit,
-                        bytestring,
-                        filepath,
-                        directory,
-                        process,
-                        text,
-                        xml-hamlet,
-                        containers,
-                        transformers,
-                        monad-control,
-                        github,
-                        rest-happstack
+                        filepath
