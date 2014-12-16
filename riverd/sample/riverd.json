@@ -1,0 +1,17 @@
+{
+    "projectName" : "maven sample",
+    "repoUrl"   : "https://github.com/kevinsawicki/github-maven-example",
+    "branchSpec": "",
+    "builds"    :
+        [
+            {
+                "buildSystem"    : "maven",
+                "buildParams"    :
+                    [
+                        "clean",
+                        "install"
+                    ]
+            }
+        ]
+}
+
