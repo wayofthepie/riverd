@@ -32,6 +32,9 @@ executable riverd
 
 library
     hs-source-dirs:     src
-    exposed-modules:    Dockerfile
-    build-depends:      base >=4.7 && <4.8,
-                        filepath
+    exposed-modules:    Dockerfile, RiverdSpec
+    build-depends:      base        >=4.7 && <4.8,
+                        aeson       >=0.7 && < 0.9,
+                        bytestring  == 0.10.4.0,
+                        filepath,
+                        text        == 1.2.0.3
