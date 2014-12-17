@@ -38,18 +38,18 @@ resource :: Resource IO (ReaderT Title IO) Title () Void
 resource = mkResourceReader
     { R.name    = "project"
     , R.schema  = withListing () $ named [("title", singleBy id)]
-    , R.list    = const list
-    , R.get     = Just get
+    , R.list    = const listProjects
+    , R.get     = Just getProject
     }
 
-get :: Handler (ReaderT Title IO)
-get = mkIdHandler xmlJsonO $ \_ title -> liftIO $ readProject title
+getProject :: Handler (ReaderT Title IO)
+getProject = mkIdHandler xmlJsonO $ \_ title -> liftIO $ readProject title
 
 readProject :: Title -> IO Project
 readProject t = return $ Project { title = t, content = "Hey!" }
 
-list :: ListHandler IO
-list = mkListing xmlJsonO $ \range -> lift $ readProjects (offset range) (count range)
+listProjects :: ListHandler IO
+listProjects = mkListing xmlJsonO $ \range -> lift $ readProjects (offset range) (count range)
 
 readProjects :: Int -> Int -> IO [Project]
 readProjects _ _ = return
