@@ -18,7 +18,7 @@ import GHC.Generics
 data RiverdSpec = RiverdSpec
     { projectName   :: Text
     , repoUrl       :: Text
-    , branchSpec    :: Text
+    , branchSpec    :: Maybe Text
     , builds        :: [Build]
     } deriving (Eq, Generic, Show)
 
