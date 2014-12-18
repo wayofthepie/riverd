@@ -16,7 +16,7 @@ import Text.XML
 
 import Prelude hiding (unwords)
 
-
+{-
 data BuildPlan = BuildPlan {
         vcsInfo     :: Maybe VCSRoot,
         buildWith   :: Text,
@@ -90,7 +90,6 @@ testPlan = BuildPlan {
     extraParams = ["clean", "install"]
 }
 
-{-
 
 gitPluginVersion = "git@2.3.1"
 
