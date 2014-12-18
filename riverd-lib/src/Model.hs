@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -28,7 +30,7 @@ data JenkinsInfo = JenkinsInfo
     } deriving (Eq, Show)
 -}
 
-share [mkPersist sqlSettings, mkSave "entityDefs"] [persistLowerCase|
+share [mkPersist sqlSettings { mpsGeneric = True }, mkMigrate "migrateAll"] [persistLowerCase|
 Project
     projectName Text
     repoUrl     Text
@@ -38,8 +40,7 @@ Project
 
 main :: IO ()
 main = runSqlite ":memory:" $ do
-    -- needed to create initial table
-    runMigration $ migrate entityDefs $ entityDef (Nothing :: Maybe Project)
+    runMigration migrateAll
     testId  <- insert $ Project "Test" "github.com" "10.64.46.1"
     test    <- get testId
     liftIO $ print test
