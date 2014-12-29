@@ -6,6 +6,10 @@ module Stash.Types.Repo where
 import Data.Aeson
 import GHC.Generics
 
+import Stash.Types.Link
+import Stash.Types.Links
+import Stash.Types.Project
+
 data Repo = Repo
     { slug          :: String
     , id            :: Int
@@ -13,11 +17,11 @@ data Repo = Repo
     , state         :: String
     , statusMessage :: String
     , forkable      :: Bool
-    , project       :: Object
+    , project       :: Project
     , public        :: Bool
-    , link          :: Object
+    , link          :: Link
     , cloneUrl      :: String
-    , links         :: Object
+    , links         :: Links
     } deriving (Eq, Generic, Show)
 
 instance FromJSON Repo

@@ -17,6 +17,8 @@ import Data.Maybe
 import GHC.Generics
 import Network.HTTP.Conduit
 
+import qualified Stash.Types.Link           as Link
+import qualified Stash.Types.Links          as Links
 import qualified Stash.Types.PagedResponse  as PR
 import qualified Stash.Types.Project        as P
 import qualified Stash.Types.Repo           as R
