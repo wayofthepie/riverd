@@ -88,18 +88,16 @@ requestBuilder httpMethod ep (user, pass) =
 
 
 -- | getResponse request
-getResponse ::
-    ( MonadIO m, MonadBaseControl IO m ) => Request -> m ( Response BLC.ByteString )
-getResponse req = withManager $ \manager -> do
-    resp <- httpLbs req manager
-    return resp
+getResponse :: ( MonadIO m, MonadBaseControl IO m ) =>
+    Manager -> Request -> m ( Response BLC.ByteString )
+getResponse manager req = httpLbs req manager
 
 
 getProjects :: StashClient ( Either String ( PR.PagedResponse [P.Project] ) )
 getProjects = do
     config <- ask
     liftM ( decoder . responseBody ) $
-        getResponse =<< requestBuilder modifyRequest (endpoint config)
+        getResponse (scManager config) =<< requestBuilder modifyRequest (endpoint config)
             (username config, password config)
     where
         endpoint :: StashClientConfig -> String
