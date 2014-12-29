@@ -27,18 +27,27 @@ import qualified Stash.Types.Repo           as R
 
 
 data StashClientConfig = StashClientConfig
-    { username :: String
-    , password :: String
-    , scManager:: Manager
-    }
+    { apiBase       :: String
+    , apiVersion    :: String
+    , apiProtocol   :: String
+    , username      :: String
+    , password      :: String
+    , scManager     :: Manager
+    } deriving (Eq, Show)
+
 
 defaultStashClientConfig :: ( MonadBaseControl IO m,  MonadIO m ) =>
-    String -> String -> m StashClientConfig
-defaultStashClientConfig u p = withManager $ \manager -> do
-    return StashClientConfig { username = u
-                             , password = p
-                             , scManager= manager
-                             }
+    String -> String -> String -> m StashClientConfig
+defaultStashClientConfig base user pass  =
+    withManager $ \manager -> do
+        return StashClientConfig { apiBase      = base
+                                 , apiVersion   = "1.0"
+                                 , apiProtocol  = "http://"
+                                 , username     = user
+                                 , password     = pass
+                                 , scManager    = manager
+                                 }
+
 
 type StashClient a = ReaderT StashClientConfig (ResourceT IO) a
 
@@ -49,16 +58,15 @@ runStashClient config action =
 
 -- | apiEndpointUrl hostname apiVersion query path
 -- Hardcoded to use http for testing purposes
-apiEndpointUrl :: String -> String -> String -> Maybe String -> String
-apiEndpointUrl h v p q
-    | isJust q  = url ++ fromJust q
+apiEndpointUrl :: StashClientConfig -> String -> Maybe String -> String
+apiEndpointUrl config path q
+    | isJust q  = url ++ "?" ++ fromJust q
     | otherwise = url
-    where url =concat ["http://", h, "/rest/api/", v, "/", p, "?"]
+    where url = concat [ apiProtocol config, apiBase config, "/rest/api/", apiVersion config, "/", path]
 
 
 requestBuilder :: ( MonadIO m, MonadThrow m ) =>
     (Request -> Request) -> String -> (String, String) -> m Request
-
 requestBuilder httpMethod ep (user, pass) =
     parseUrl ep >>= \url -> return $ addBasicAuth . acceptJson . httpMethod $ url
     where
@@ -67,7 +75,9 @@ requestBuilder httpMethod ep (user, pass) =
 
         acceptJson :: Request -> Request
         acceptJson req =
-            req { requestHeaders = [("Accept", "application/json")] }
+            req { requestHeaders    = [("Accept", "application/json")]
+                , responseTimeout   = Just 1000000
+                }
 
 
 -- | getResponse request
@@ -82,13 +92,13 @@ getProjects :: StashClient ( Either String ( PR.PagedResponse [P.Project] ) )
 getProjects = do
     config <- ask
     liftM ( decoder . responseBody ) $
-        getResponse =<< requestBuilder modifyRequest endpoint (username config, password config)
+        getResponse =<< requestBuilder modifyRequest (endpoint config) (username config, password config)
     where
-        endpoint :: String
-        endpoint = apiEndpointUrl "192.168.11.15:7990" "1.0" "projects" Nothing
+        endpoint :: StashClientConfig -> String
+        endpoint config = apiEndpointUrl config "projects" Nothing
 
         modifyRequest :: Request -> Request
-        modifyRequest req = req { method = "GET",responseTimeout=Just (1000000) }
+        modifyRequest req = req { method = "GET" }
 
         decoder :: BLC.ByteString -> Either String ( PR.PagedResponse [P.Project] )
         decoder = eitherDecode
