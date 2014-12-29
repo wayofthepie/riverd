@@ -33,7 +33,7 @@ data StashClientConfig = StashClientConfig
     , username      :: String
     , password      :: String
     , scManager     :: Manager
-    } deriving (Eq, Show)
+    }
 
 
 defaultStashClientConfig :: ( MonadBaseControl IO m,  MonadIO m ) =>
@@ -51,6 +51,13 @@ defaultStashClientConfig base user pass  =
 
 type StashClient a = ReaderT StashClientConfig (ResourceT IO) a
 
+
+-- | Example
+--
+-- @
+--  liftM (\\pr -> case pr of { Right x -> PR.values x; Left _ -> error ""})
+--      runStashClient cfg $ getProjects
+-- @
 runStashClient :: MonadIO m => StashClientConfig -> StashClient a -> m a
 runStashClient config action =
     liftIO $ runResourceT $ runReaderT action config
@@ -92,7 +99,8 @@ getProjects :: StashClient ( Either String ( PR.PagedResponse [P.Project] ) )
 getProjects = do
     config <- ask
     liftM ( decoder . responseBody ) $
-        getResponse =<< requestBuilder modifyRequest (endpoint config) (username config, password config)
+        getResponse =<< requestBuilder modifyRequest (endpoint config)
+            (username config, password config)
     where
         endpoint :: StashClientConfig -> String
         endpoint config = apiEndpointUrl config "projects" Nothing
@@ -102,4 +110,6 @@ getProjects = do
 
         decoder :: BLC.ByteString -> Either String ( PR.PagedResponse [P.Project] )
         decoder = eitherDecode
+
+
 
