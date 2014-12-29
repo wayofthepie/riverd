@@ -11,24 +11,16 @@ import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Trans.Control (MonadBaseControl)
 import Data.Aeson
 import Data.Aeson.Lens
-import qualified Data.ByteString.Char8 as BC
+import qualified Data.ByteString.Char8      as BC
 import qualified Data.ByteString.Lazy.Char8 as BLC
 import Data.Maybe
 import GHC.Generics
 import Network.HTTP.Conduit
 
-import qualified Stash.Types.Project as P
-import qualified Stash.Types.Repo as R
+import qualified Stash.Types.PagedResponse  as PR
+import qualified Stash.Types.Project        as P
+import qualified Stash.Types.Repo           as R
 
-data PagedResponse a = PagedResponse
-    { size      :: Int
-    , limit     :: Int
-    , isLastPage:: Bool
-    , values    :: a
-    } deriving (Eq, Generic, Show)
-
-instance FromJSON (PagedResponse [R.Repo])
-instance FromJSON (PagedResponse [P.Project])
 
 
 -- | apiEndpointUrl hostname apiVersion query path
@@ -63,7 +55,7 @@ getResponse req = withManager $ \manager -> do
 
 
 getProjects :: ( MonadBaseControl IO m, MonadIO m,  MonadThrow m ) =>
-    m ( Either String ( PagedResponse [P.Project] ) )
+    m ( Either String ( PR.PagedResponse [P.Project] ) )
 getProjects = liftM ( decoder. responseBody ) $
     getResponse =<< requestBuilder modifyRequest endpoint ("chaospie","test")
     where
@@ -73,6 +65,6 @@ getProjects = liftM ( decoder. responseBody ) $
         modifyRequest :: Request -> Request
         modifyRequest req = req { method = "GET",responseTimeout=Just (1000000) }
 
-        decoder :: BLC.ByteString -> Either String ( PagedResponse [P.Project] )
+        decoder :: BLC.ByteString -> Either String ( PR.PagedResponse [P.Project] )
         decoder = eitherDecode
 

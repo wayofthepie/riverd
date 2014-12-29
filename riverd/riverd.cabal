@@ -37,6 +37,9 @@ library
         RiverdSpec,
         Api,
         Api.Project,
+        Stash.Types.PagedResponse,
+        Stash.Types.Project,
+        Stash.Types.Repo,
         StashClient
 
 
