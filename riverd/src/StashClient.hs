@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module StashClient where
@@ -16,32 +17,18 @@ import Data.Maybe
 import GHC.Generics
 import Network.HTTP.Conduit
 
+import qualified Stash.Types.Project as P
+import qualified Stash.Types.Repo as R
 
-data PagedResponse = PagedResponse
+data PagedResponse a = PagedResponse
     { size      :: Int
     , limit     :: Int
     , isLastPage:: Bool
-    , values    :: Array
+    , values    :: a
     } deriving (Eq, Generic, Show)
 
-instance FromJSON PagedResponse
-
-
-data Repo = Repo
-    { slug          :: String
-    , id            :: Int
-    , name          :: String
-    , state         :: String
-    , statusMessage :: String
-    , forkable      :: Bool
-    , project       :: Object
-    , public        :: Bool
-    , link          :: Object
-    , cloneUrl      :: String
-    , links         :: Object
-    } deriving (Eq, Generic, Show)
-
-instance FromJSON Repo
+instance FromJSON (PagedResponse R.Repo)
+instance FromJSON (PagedResponse P.Project)
 
 
 -- | apiEndpointUrl hostname apiVersion query path
@@ -75,8 +62,9 @@ getResponse req = withManager $ \manager -> do
     return resp
 
 
-getProjects :: ( MonadBaseControl IO m, MonadIO m,  MonadThrow m ) => m ( Either String PagedResponse )
-getProjects = liftM ( (eitherDecode :: BLC.ByteString -> Either String PagedResponse) . responseBody ) $
+getProjects :: ( MonadBaseControl IO m, MonadIO m,  MonadThrow m ) =>
+    m ( Either String ( PagedResponse R.Repo ) )
+getProjects = liftM ( decoder. responseBody ) $
     getResponse =<< requestBuilder modifyRequest endpoint ("chaospie","test")
     where
         endpoint :: String
@@ -84,3 +72,7 @@ getProjects = liftM ( (eitherDecode :: BLC.ByteString -> Either String PagedResp
 
         modifyRequest :: Request -> Request
         modifyRequest req = req { method = "GET",responseTimeout=Just (1000000) }
+
+        decoder :: BLC.ByteString -> Either String ( PagedResponse R.Repo)
+        decoder = eitherDecode
+

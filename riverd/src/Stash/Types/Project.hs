@@ -27,3 +27,4 @@ instance FromJSON Project where
         <*> x .: "link"
         <*> x .: "links"
     parseJSON _ = fail "Expected an object!"
+
