@@ -63,7 +63,7 @@ getResponse req = withManager $ \manager -> do
 
 
 getProjects :: ( MonadBaseControl IO m, MonadIO m,  MonadThrow m ) =>
-    m ( Either String ( PagedResponse R.Repo ) )
+    m ( Either String ( PagedResponse P.Project ) )
 getProjects = liftM ( decoder. responseBody ) $
     getResponse =<< requestBuilder modifyRequest endpoint ("chaospie","test")
     where
@@ -73,6 +73,6 @@ getProjects = liftM ( decoder. responseBody ) $
         modifyRequest :: Request -> Request
         modifyRequest req = req { method = "GET",responseTimeout=Just (1000000) }
 
-        decoder :: BLC.ByteString -> Either String ( PagedResponse R.Repo)
+        decoder :: BLC.ByteString -> Either String ( PagedResponse P.Project )
         decoder = eitherDecode
 
