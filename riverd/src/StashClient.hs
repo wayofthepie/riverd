@@ -7,8 +7,10 @@ module StashClient where
 
 import Control.Monad
 import Control.Monad.Catch (MonadThrow)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.IO.Class (liftIO, MonadIO)
+import Control.Monad.Reader (ask, runReaderT, ReaderT)
 import Control.Monad.Trans.Control (MonadBaseControl)
+import Control.Monad.Trans.Resource (runResourceT, ResourceT)
 import Data.Aeson
 import Data.Aeson.Lens
 import qualified Data.ByteString.Char8      as BC
@@ -23,6 +25,26 @@ import qualified Stash.Types.PagedResponse  as PR
 import qualified Stash.Types.Project        as P
 import qualified Stash.Types.Repo           as R
 
+
+data StashClientConfig = StashClientConfig
+    { username :: String
+    , password :: String
+    , scManager:: Manager
+    }
+
+defaultStashClientConfig :: ( MonadBaseControl IO m,  MonadIO m ) =>
+    String -> String -> m StashClientConfig
+defaultStashClientConfig u p = withManager $ \manager -> do
+    return StashClientConfig { username = u
+                             , password = p
+                             , scManager= manager
+                             }
+
+type StashClient a = ReaderT StashClientConfig (ResourceT IO) a
+
+runStashClient :: MonadIO m => StashClientConfig -> StashClient a -> m a
+runStashClient config action =
+    liftIO $ runResourceT $ runReaderT action config
 
 
 -- | apiEndpointUrl hostname apiVersion query path
@@ -56,10 +78,11 @@ getResponse req = withManager $ \manager -> do
     return resp
 
 
-getProjects :: ( MonadBaseControl IO m, MonadIO m,  MonadThrow m ) =>
-    m ( Either String ( PR.PagedResponse [P.Project] ) )
-getProjects = liftM ( decoder. responseBody ) $
-    getResponse =<< requestBuilder modifyRequest endpoint ("chaospie","test")
+getProjects :: StashClient ( Either String ( PR.PagedResponse [P.Project] ) )
+getProjects = do
+    config <- ask
+    liftM ( decoder . responseBody ) $
+        getResponse =<< requestBuilder modifyRequest endpoint (username config, password config)
     where
         endpoint :: String
         endpoint = apiEndpointUrl "192.168.11.15:7990" "1.0" "projects" Nothing
