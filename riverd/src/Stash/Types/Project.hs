@@ -6,6 +6,8 @@ module Stash.Types.Project where
 import Control.Applicative
 import Data.Aeson
 
+import Stash.Types.Link
+import Stash.Types.Links
 
 data Project = Project
     { key   :: String
@@ -13,8 +15,8 @@ data Project = Project
     , name  :: String
     , public:: Bool
     , typ   :: String
-    , link  :: Object
-    , links :: Object
+    , link  :: Link
+    , links :: Links
     } deriving (Eq, Show)
 
 instance FromJSON Project where
