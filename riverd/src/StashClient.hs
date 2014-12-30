@@ -116,3 +116,7 @@ getRepos :: String -> StashClient ( Either String ( PR.PagedResponse [R.Repo] ) 
 getRepos pkey = reqEP ep Nothing mod2get >>= return . eitherDecode . responseBody
     where ep = "projects" ++ "/" ++ pkey ++ "/" ++ "repos"
 
+
+getRepo :: String -> String -> StashClient ( Either String R.Repo )
+getRepo pkey rkey = reqEP ep Nothing mod2get >>= return . eitherDecode . responseBody
+    where ep = "projects" ++ "/" ++ pkey ++ "/" ++ "repos" ++ "/" ++ rkey
