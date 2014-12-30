@@ -3,7 +3,6 @@
 
 module Stash.Types.Repo where
 
-import Control.Applicative
 import Data.Aeson
 import GHC.Generics
 

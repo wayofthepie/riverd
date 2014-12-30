@@ -31,22 +31,17 @@ module StashClient (
     , getRepo
     ) where
 
-import Control.Monad
 import Control.Monad.Catch (MonadThrow)
 import Control.Monad.IO.Class (liftIO, MonadIO)
 import Control.Monad.Reader (ask, runReaderT, ReaderT)
 import Control.Monad.Trans.Control (MonadBaseControl)
 import Control.Monad.Trans.Resource (runResourceT, ResourceT)
 import Data.Aeson
-import Data.Aeson.Lens
 import qualified Data.ByteString.Char8      as BC
 import qualified Data.ByteString.Lazy.Char8 as BLC
 import Data.Maybe
-import GHC.Generics
 import Network.HTTP.Conduit
 
-import qualified Stash.Types.Link           as Link
-import qualified Stash.Types.Links          as Links
 import qualified Stash.Types.PagedResponse  as PR
 import qualified Stash.Types.Project        as P
 import qualified Stash.Types.Repo           as R
@@ -117,7 +112,7 @@ reqEP ep q httpMethod = do
             (username config, password config)
     where
         endpoint :: StashClientConfig -> String -> Maybe String -> String
-        endpoint config ep q = apiEndpointUrl config ep q
+        endpoint config apipath query = apiEndpointUrl config apipath query
 
 
 -- | Changes the given request's http method to GET.
@@ -170,10 +165,12 @@ getRepo pkey rkey = reqEP ep Nothing mod2get >>= return . eitherDecode . respons
 
 -- | URL generator.
 apiEndpointUrl :: StashClientConfig -> String -> Maybe String -> String
-apiEndpointUrl config path q
+apiEndpointUrl config apipath q
     | isJust q  = url ++ "?" ++ fromJust q
     | otherwise = url
-    where url = concat [ apiProtocol config, apiBase config, "/rest/api/", apiVersion config, "/", path]
+    where
+    url = apiProtocol config ++ apiBase config ++
+          "/rest/api/" ++ apiVersion config ++  "/" ++ apipath
 
 
 -- | Builds a request.
