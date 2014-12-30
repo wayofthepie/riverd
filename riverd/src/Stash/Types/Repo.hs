@@ -3,6 +3,7 @@
 
 module Stash.Types.Repo where
 
+import Control.Applicative
 import Data.Aeson
 import GHC.Generics
 
@@ -24,7 +25,7 @@ data Repo = Repo
     , links         :: Links
     } deriving (Eq, Generic, Show)
 
-instance FromJSON Repo
 
+instance FromJSON Repo
 
 

@@ -93,21 +93,26 @@ getResponse :: ( MonadIO m, MonadBaseControl IO m ) =>
 getResponse manager req = httpLbs req manager
 
 
-getProjects :: StashClient ( Either String ( PR.PagedResponse [P.Project] ) )
-getProjects = do
+reqEP :: String -> Maybe String ->
+    (Request -> Request) -> StashClient ( Response BLC.ByteString )
+reqEP ep q httpMethod = do
     config <- ask
-    liftM ( decoder . responseBody ) $
-        getResponse (scManager config) =<< requestBuilder modifyRequest (endpoint config)
+    getResponse (scManager config) =<< requestBuilder httpMethod (endpoint config ep q)
             (username config, password config)
     where
-        endpoint :: StashClientConfig -> String
-        endpoint config = apiEndpointUrl config "projects" Nothing
-
-        modifyRequest :: Request -> Request
-        modifyRequest req = req { method = "GET" }
-
-        decoder :: BLC.ByteString -> Either String ( PR.PagedResponse [P.Project] )
-        decoder = eitherDecode
+        endpoint :: StashClientConfig -> String -> Maybe String -> String
+        endpoint config ep q = apiEndpointUrl config ep q
 
 
+mod2get :: (Request -> Request)
+mod2get = \r -> r { method = "GET" }
+
+
+getProjects :: StashClient ( Either String ( PR.PagedResponse [P.Project] ) )
+getProjects = reqEP "projects" Nothing mod2get >>= return . eitherDecode . responseBody
+
+
+getRepos :: String -> StashClient ( Either String ( PR.PagedResponse [R.Repo] ) )
+getRepos pkey = reqEP ep Nothing mod2get >>= return . eitherDecode . responseBody
+    where ep = "projects" ++ "/" ++ pkey ++ "/" ++ "repos"
 

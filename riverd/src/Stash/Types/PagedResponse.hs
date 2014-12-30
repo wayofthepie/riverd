@@ -16,11 +16,9 @@ data PagedResponse a = PagedResponse
     , limit     :: Int
     , isLastPage:: Bool
     , values    :: a
+    , start     :: Maybe Int
     } deriving (Eq, Generic, Show)
 
 instance FromJSON (PagedResponse [R.Repo])
 instance FromJSON (PagedResponse [P.Project])
-
-
-
 
