@@ -10,13 +10,13 @@ import Stash.Types.Link
 import Stash.Types.Links
 
 data Project = Project
-    { key   :: String
-    , id    :: Int
-    , name  :: String
-    , public:: Bool
-    , typ   :: String
-    , link  :: Link
-    , links :: Links
+    { key           :: String
+    , id            :: Int
+    , name          :: String
+    , public        :: Bool
+    , projectType   :: String
+    , link          :: Link
+    , links         :: Links
     } deriving (Eq, Show)
 
 instance FromJSON Project where

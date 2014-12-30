@@ -26,6 +26,7 @@ module StashClient (
 
     -- * Get Actions
     , getProjects
+    , getProject
     , getRepos
     , getRepo
     ) where
@@ -135,6 +136,10 @@ getProjects :: StashClient ( Either String ( PR.PagedResponse [P.Project] ) )
 getProjects = reqEP "projects" Nothing mod2get >>= return . eitherDecode . responseBody
 
 
+getProject :: String -> StashClient ( Either String ( P.Project ) )
+getProject pkey = reqEP ep Nothing mod2get >>= return . eitherDecode . responseBody
+    where ep = "projects" ++ "/" ++ pkey
+
 -- | Get a paged (defaults to 25 repos per request) list of repos in the given
 -- project.
 --
@@ -156,6 +161,7 @@ getRepos pkey = reqEP ep Nothing mod2get >>= return . eitherDecode . responseBod
 getRepo :: String -> String -> StashClient ( Either String R.Repo )
 getRepo pkey rkey = reqEP ep Nothing mod2get >>= return . eitherDecode . responseBody
     where ep = "projects" ++ "/" ++ pkey ++ "/" ++ "repos" ++ "/" ++ rkey
+
 
 
 --------------------------------------------------------------------------------
