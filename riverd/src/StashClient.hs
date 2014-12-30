@@ -14,11 +14,10 @@ module StashClient (
     -- * Data Types
     -- ** StashClientConfig
     StashClientConfig(..)
+    , defaultStashClientConfig
 
     -- ** StashClient
     , StashClient
-
-    , defaultStashClientConfig
     , runStashClient
 
     -- * Building Blocks
