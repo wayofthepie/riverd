@@ -7,8 +7,29 @@
 {-|
     Module      : StashClient
     Description : A REST client library for Atlassian Stash.
+
+    A REST client library for Atlassian Stash.
 -}
-module StashClient where
+module StashClient (
+    -- * Data Types
+    -- ** StashClientConfig
+    StashClientConfig(..)
+
+    -- ** StashClient
+    , StashClient
+
+    , defaultStashClientConfig
+    , runStashClient
+
+    -- * Building Blocks
+    , reqEP
+    , mod2get
+
+    -- * Get Actions
+    , getProjects
+    , getRepos
+    , getRepo
+    ) where
 
 import Control.Monad
 import Control.Monad.Catch (MonadThrow)
@@ -32,9 +53,6 @@ import qualified Stash.Types.Repo           as R
 
 
 --------------------------------------------------------------------------------
--- * Data Types
-
--- ** StashClientConfig
 
 -- | Holds configuration info for the client
 data StashClientConfig = StashClientConfig
@@ -46,11 +64,10 @@ data StashClientConfig = StashClientConfig
     , scManager     :: Manager
     }
 
--- | Default StashClientConfig.
---
--- Takes a base URL (which includes the port) a username and  a password.
--- Configures the protocol to be "http://" the REST API version to be "1.0" and
--- uses a default manager (see withManager in Network.HTTP.Conduit).
+-- | Default StashClientConfig. Takes a base URL (which includes the port)
+--  a username and  a password. Configures the protocol to be "http://"
+--  the REST API version to be "1.0" and uses a default manager
+--  (see withManager in Network.HTTP.Conduit).
 defaultStashClientConfig :: ( MonadBaseControl IO m,  MonadIO m ) =>
     String -> String -> String -> m StashClientConfig
 defaultStashClientConfig base user pass  =
@@ -64,7 +81,6 @@ defaultStashClientConfig base user pass  =
                                  }
 
 
--- ** StashClient
 
 -- | ReaderT monad to allow us pass configuration around.
 type StashClient a = ReaderT StashClientConfig (ResourceT IO) a
@@ -72,7 +88,6 @@ type StashClient a = ReaderT StashClientConfig (ResourceT IO) a
 
 -- | Run a StashClient action with the given configuration.
 --
--- Example:
 -- @
 --  defaultStashClientConfig "102.168.1.1:7990" "test" "test" >>=
 --      flip runStashClient (getRepo "TEST" "test")
@@ -84,9 +99,16 @@ runStashClient config action =
 
 
 --------------------------------------------------------------------------------
--- * Building Blocks
--- Helper functions to allow building higher level API request functions.
 
+
+-- | The resonse from requesting the given endpoint __ep__, query __q__ and
+-- http method __httpMethod__.
+--
+-- @
+--  getProjects :: StashClient ( Either String ( PR.PagedResponse [P.Project] ) )
+--  getProjects = reqEP "projects" Nothing mod2get >>=
+--      return . eitherDecode . responseBody
+-- @
 reqEP :: String -> Maybe String ->
     (Request -> Request) -> StashClient ( Response BLC.ByteString )
 reqEP ep q httpMethod = do
@@ -98,12 +120,11 @@ reqEP ep q httpMethod = do
         endpoint config ep q = apiEndpointUrl config ep q
 
 
-mod2get :: (Request -> Request)
-mod2get = \r -> r { method = "GET" }
-
+-- | Changes the given request's http method to GET.
+mod2get :: Request -> Request
+mod2get r = r { method = "GET" }
 
 --------------------------------------------------------------------------------
--- * Get Actions
 
 -- | Get a paged list of projects.
 --
@@ -142,8 +163,7 @@ getRepo pkey rkey = reqEP ep Nothing mod2get >>= return . eitherDecode . respons
 -- * Internal Functions
 
 
--- | apiEndpointUrl hostname apiVersion query path
--- Hardcoded to use http for testing purposes
+-- | URL generator.
 apiEndpointUrl :: StashClientConfig -> String -> Maybe String -> String
 apiEndpointUrl config path q
     | isJust q  = url ++ "?" ++ fromJust q
@@ -151,6 +171,7 @@ apiEndpointUrl config path q
     where url = concat [ apiProtocol config, apiBase config, "/rest/api/", apiVersion config, "/", path]
 
 
+-- | Builds a request.
 requestBuilder :: ( MonadIO m, MonadThrow m ) =>
     (Request -> Request) -> String -> (String, String) -> m Request
 requestBuilder httpMethod ep (user, pass) =
@@ -166,7 +187,7 @@ requestBuilder httpMethod ep (user, pass) =
                 }
 
 
--- | getResponse request
+-- | Runs a request.
 getResponse :: ( MonadIO m, MonadBaseControl IO m ) =>
     Manager -> Request -> m ( Response BLC.ByteString )
 getResponse manager req = httpLbs req manager
