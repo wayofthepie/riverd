@@ -39,6 +39,7 @@ library
         Api,
         Api.Project,
         Model.Repository,
+        Model.XmlGen,
         Stash.Types.Link,
         Stash.Types.Links,
         Stash.Types.PagedResponse,

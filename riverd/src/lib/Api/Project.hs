@@ -28,7 +28,9 @@ getProject = mkIdHandler xmlJsonO $ \_ titleStr -> liftIO $ readProject titleStr
 
 
 readProject :: String -> IO Project
-readProject t = return $ Project t ["Test!", "Hey!"]
+readProject t = return $ Project "test"
+                    []
+                    ["gradle clean build"]
 
 
 listProjects :: ListHandler IO
@@ -42,7 +44,11 @@ readProjects :: Int -> Int -> IO [Project]
 readProjects _ _ =
     return
         [
-            Project "Project One" ["First."] ,
-            Project "Project Two" ["Second!"]
+            Project "test"
+                []
+                ["gradle clean build"],
+            Project "test2"
+                []
+                ["gradle clean build"]
         ]
 

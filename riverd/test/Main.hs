@@ -34,19 +34,20 @@ emptyRunnerOpts = mempty :: RunnerOptions
 runnerOpts = emptyRunnerOpts { ropt_test_options = Just testOpts }
 
 
-exampleProject :: Project
-exampleProject = Project "Test" ["t1", "t2"]
-
-
 main :: IO ()
 main = defaultMainWithOpts tests runnerOpts
+
+
+exampleProject :: Project
+exampleProject = Project "test"
+                    [ExternalDependency "gradle" "2.2.0" "Gradle!"]
+                    ["gradle clean build"]
 
 
 tests = [
         testGroup "Json Type Validation" [
             testCase "Validate Project To Json" test_validate_Project_to_Json
-        ],
-        testGroup "Xml TypeValidation" [
+        ],        testGroup "Xml TypeValidation" [
             testGroup "Validate Project To Xml" [
                 testCase "Validate Title" test_validate_Project_to_Xml_Title
             ]
@@ -65,11 +66,11 @@ test_validate_Project_to_Json = (JSV.isValid (schema (Proxy :: Proxy Project)) $
 pickledProject = (pickleDoc :: PU Project -> Project -> XmlTree) xpickle exampleProject
 
 
-test_validate_Project_to_Xml_Title = getValue @?= ( Just $ projectTitle exampleProject )
+test_validate_Project_to_Xml_Title = getValue @?= ( Just $ projectName exampleProject )
     where
         mapXtractTxt    = fmap (\(XText t) -> t)
         mapGetNode      = fmap getNode
-        xpath           = getXPath "//title/text()" pickledProject
+        xpath           = getXPath "//project/name/text()" pickledProject
         validate xs     | length xs == 1 = Just $ head xs
                         | otherwise = Nothing
         getValue = validate $ mapXtractTxt $ mapGetNode $ xpath
