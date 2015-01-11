@@ -74,6 +74,7 @@ instance XmlPickler Project where
                     (xpElem "dependencies" xpickle)
                     (xpElem "steps" $ xpList (xpElem "step" xpText))
 
+
 -------------------------------------------------------------------------------
 -- | ExternalDependency
 deriveAll ''ExternalDependency "PFExternalDependency"
@@ -83,9 +84,6 @@ instance FromJSON ExternalDependency where parseJSON = gparseJson
 instance ToJSON   ExternalDependency where toJSON    = gtoJson
 instance JSONSchema ExternalDependency where schema  = gSchema
 
--- | NOTE: The generic instance of XmlPickler for ExternalDependency (i.e
--- using gxpickle) creates an instance that has an infinite loop. Would be
--- worthwhile investigating and raising an issue.
 instance XmlPickler ExternalDependency where
     xpickle =
         let toExtDep   = \(a, ts, ss) -> ExternalDependency a ts ss
@@ -96,6 +94,13 @@ instance XmlPickler ExternalDependency where
                          (xpElem "version" xpText)
                          (xpElem "description" xpText)
 
+
+-- | NOTE: The generic instance of XmlPickler for ExternalDependency (i.e
+-- using gxpickle) creates an instance that has an infinite loop. Would be
+-- worthwhile investigating and raising an issue.
+--
+--  instance XmlPickler ExternalDependency where
+--      xpickle = gxpickle
 
 
 -- | Temporary function to run a quick store test
