@@ -12,7 +12,7 @@ import Control.Monad.Reader
 import Rest
 import qualified Rest.Resource as R
 
-import Model.Types
+import Model.Repository
 
 resource :: Resource IO (ReaderT String IO) String () Void
 resource = mkResourceReader
@@ -28,7 +28,7 @@ getProject = mkIdHandler xmlJsonO $ \_ titleStr -> liftIO $ readProject titleStr
 
 
 readProject :: String -> IO Project
-readProject t = return Project { title = t, content = ["Test!", "Hey!"] }
+readProject t = return $ Project t ["Test!", "Hey!"]
 
 
 listProjects :: ListHandler IO
@@ -42,7 +42,7 @@ readProjects :: Int -> Int -> IO [Project]
 readProjects _ _ =
     return
         [
-            Project { title = "Project One", content = ["First."] },
-            Project { title = "Project Two", content = ["Second!"] }
+            Project "Project One" ["First."] ,
+            Project "Project Two" ["Second!"]
         ]
 
