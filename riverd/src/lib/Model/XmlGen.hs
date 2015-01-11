@@ -3,7 +3,7 @@
 -- these should be moved to test....
 module Model.XmlGen where
 
-import Model.Repository
+
 import Text.XML.HXT.DOM.TypeDefs
 import Text.XML.HXT.Arrow.Pickle.Xml
 import Text.XML.HXT.Arrow.Pickle
@@ -11,6 +11,9 @@ import Control.Arrow
 import Control.Arrow.ArrowList
 import Text.XML.HXT.Arrow.Edit
 import Text.XML.HXT.Arrow.XmlState
+
+import Model.Types
+
 
 genXmlFile :: a -> PU a -> String -> IO [XmlTree]
 genXmlFile togen pickler fileName =

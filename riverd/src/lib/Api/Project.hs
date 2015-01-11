@@ -12,7 +12,7 @@ import Control.Monad.Reader
 import Rest
 import qualified Rest.Resource as R
 
-import Model.Repository
+import Model.Types
 
 resource :: Resource IO (ReaderT String IO) String () Void
 resource = mkResourceReader

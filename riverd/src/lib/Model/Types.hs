@@ -10,7 +10,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Model.Repository where
+module Model.Types where
 
 import Control.Monad.IO.Class
 import Data.Aeson
@@ -29,8 +29,9 @@ import Text.XML.HXT.Arrow.Pickle hiding (Schema)
 
 
 share [mkPersist sqlSettings { mpsGeneric = True }, mkMigrate "migrateAll"] [persistLowerCase|
+-- | Project
 Project
-    name        String
+    name        String -- ^ Project Name
     extDeps     [ExternalDependency]
     buildSteps  [String]
     UniqueName  name
@@ -44,13 +45,20 @@ ExternalDependency
     deriving Eq Generic Read Typeable Show
 |]
 
+-------------------------------------------------------------------------------
+-- Instances
+-------------------------------------------------------------------------------
 
--- | Project.
+{-
+    Project
+-}
+
 -- Configuration for rest-core
 deriveAll ''Project "PFProject"
-
 type instance PF Project = PFProject
+
 instance FromJSON Project where parseJSON = gparseJson
+
 instance ToJSON   Project where toJSON    = gtoJson
 
 instance JSONSchema Project where
@@ -75,13 +83,18 @@ instance XmlPickler Project where
                     (xpElem "steps" $ xpList (xpElem "step" xpText))
 
 
--------------------------------------------------------------------------------
--- | ExternalDependency
-deriveAll ''ExternalDependency "PFExternalDependency"
 
+{-
+     ExternalDependency
+-}
+
+deriveAll ''ExternalDependency "PFExternalDependency"
 type instance PF ExternalDependency = PFExternalDependency
+
 instance FromJSON ExternalDependency where parseJSON = gparseJson
+
 instance ToJSON   ExternalDependency where toJSON    = gtoJson
+
 instance JSONSchema ExternalDependency where schema  = gSchema
 
 instance XmlPickler ExternalDependency where
@@ -94,14 +107,14 @@ instance XmlPickler ExternalDependency where
                          (xpElem "version" xpText)
                          (xpElem "description" xpText)
 
+{-
+    NOTE: The generic instance of XmlPickler for ExternalDependency (i.e
+    using gxpickle) creates an instance that has an infinite loop. Would be
+    worthwhile investigating and raising an issue.
 
--- | NOTE: The generic instance of XmlPickler for ExternalDependency (i.e
--- using gxpickle) creates an instance that has an infinite loop. Would be
--- worthwhile investigating and raising an issue.
---
---  instance XmlPickler ExternalDependency where
---      xpickle = gxpickle
-
+    instance XmlPickler ExternalDependency where
+    xpickle = gxpickle
+-}
 
 -- | Temporary function to run a quick store test
 test :: IO ()

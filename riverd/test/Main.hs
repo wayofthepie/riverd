@@ -10,7 +10,6 @@ import Data.Monoid
 import Data.Proxy()
 import Data.Tree.Class
 import Data.Tree.NTree.TypeDefs
-import Model.Repository
 import Test.Framework (defaultMain, defaultMainWithOpts, testGroup)
 import Test.Framework.Options (TestOptions, TestOptions'(..))
 import Test.Framework.Runners.Options (RunnerOptions, RunnerOptions'(..))
@@ -21,6 +20,8 @@ import Test.QuickCheck
 import Text.XML.HXT.Arrow.Pickle
 import Text.XML.HXT.DOM.TypeDefs
 import Text.XML.HXT.XPath.XPathEval
+
+import Model.Types
 
 emptyTestOpts = mempty :: TestOptions
 

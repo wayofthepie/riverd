@@ -38,7 +38,7 @@ library
         RiverdSpec,
         Api,
         Api.Project,
-        Model.Repository,
+        Model.Types,
         Model.XmlGen,
         Stash.Types.Link,
         Stash.Types.Links,
