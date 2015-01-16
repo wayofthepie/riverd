@@ -7,7 +7,7 @@ import Happstack.Server
 import Rest.Driver.Happstack
 
 main :: IO ()
-main = simpleHTTP nullConf handle
+main = simpleHTTP (Conf 8000 Nothing Nothing 60 Nothing) handle
 
 handle :: ServerPartT IO Response
 handle = apiToHandler' liftIO api
