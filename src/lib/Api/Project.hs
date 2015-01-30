@@ -16,12 +16,7 @@ import Rest
 import Rest.Error
 import qualified Rest.Resource as R
 
-import Model.Types
-import Model.ProjectCreationError
-import Model.Repository
-
-
-
+import Api.Types.Project
 
 resource :: Resource IO (ReaderT String IO) String () Void
 resource = mkResourceReader
@@ -38,9 +33,7 @@ getProject = mkIdHandler xmlJsonO $ \_ titleStr -> liftIO $ readProject titleStr
 
 
 readProject :: String -> IO Project
-readProject t = return $ Project "test"
-                    []
-                    ["gradle clean build"]
+readProject t = return $ Project "test" ""
 
 
 listProjects :: ListHandler IO
@@ -54,29 +47,18 @@ readProjects :: Int -> Int -> IO [Project]
 readProjects _ _ =
     return
         [
-            Project "test"
-                []
-                ["gradle clean build"],
-            Project "test2"
-                []
-                ["gradle clean build"]
+            Project "test" "",
+            Project "test2" ""
         ]
 
 create :: Handler IO
 create = mkInputHandler ( xmlJsonI . xmlJsonO . xmlJsonE ) handler
     where
-        doesProjectExist :: Project -> IO (Bool)
-        doesProjectExist p =
-            let search   = runSql . DB.getBy . UniqueName $ projectName p
-                verify m | isNothing m = False
-                         | otherwise   = True
-            in  liftM verify $ search
-
-        insertProject :: Project -> IO (DB.Key Project)
-        insertProject p = runSql $ DB.insert p
-
         handler :: Project -> ErrorT (Reason ProjectCreationError) IO Int
-        handler p = do
+        handler p = maybe (return 200) throwError $ Just . domainReason $
+                            ProjectAlreadyExists "Project exists"
+{-
+do
             rv <- liftIO $ do
                 pe <- doesProjectExist p
                 if pe
@@ -86,9 +68,8 @@ create = mkInputHandler ( xmlJsonI . xmlJsonO . xmlJsonE ) handler
                     else
                         insertProject p >> return Nothing
             maybe (return 200) throwError rv
-
+-}
 -- | If for IO Bool
 --if' b t f = if b then t else f
 --ifM = liftM3 if'
-
 
