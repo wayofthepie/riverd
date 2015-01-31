@@ -39,6 +39,7 @@ library
         RiverdSpec,
         Api,
         Api.Project,
+        Api.Types.Project,
         Model.ProjectCreationError,
         Model.Repository,
         Model.Types,
