@@ -57,18 +57,8 @@ create = mkInputHandler ( xmlJsonI . xmlJsonO . xmlJsonE ) handler
         handler :: Project -> ErrorT (Reason ProjectCreationError) IO Int
         handler p = maybe (return 200) throwError $ Just . domainReason $
                             ProjectAlreadyExists "Project exists"
-{-
-do
-            rv <- liftIO $ do
-                pe <- doesProjectExist p
-                if pe
-                    then do
-                        return . Just . domainReason $
-                            ProjectAlreadyExists "Project exists"
-                    else
-                        insertProject p >> return Nothing
-            maybe (return 200) throwError rv
--}
+
+
 -- | If for IO Bool
 --if' b t f = if b then t else f
 --ifM = liftM3 if'

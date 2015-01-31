@@ -1,6 +1,15 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE
+    DeriveDataTypeable
+    , DeriveGeneric
+    , FlexibleContexts
+    , FlexibleInstances
+    , GADTs
+    , MultiParamTypeClasses
+    , OverloadedStrings
+    , QuasiQuotes
+    , TemplateHaskell
+    , TypeFamilies
+    #-}
 
 module Model.Repository where
 
@@ -8,10 +17,19 @@ import Control.Monad
 import Control.Monad.IO.Class
 import Control.Monad.Logger
 import Control.Monad.Trans.Control
+import Data.Typeable
 import Database.Persist
 import Database.Persist.Sqlite
+import Database.Persist.TH
+import GHC.Generics
 
-import Model.Types
+share [mkPersist sqlSettings { mpsGeneric = True }, mkMigrate "migrateAll"] [persistLowerCase|
+Project
+    name        String
+    repoUrl     String
+    UniqueName  name
+    deriving Eq Generic Read Typeable Show
+|]
 
 createConnPool = runStdoutLoggingT $ createSqlitePool ":test:" 10
 
