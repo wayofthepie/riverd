@@ -22,10 +22,13 @@ executable riverd
     other-modules:
     other-extensions:
     build-depends:
-        base >=4.7 && <4.8,
-        happstack-server == 7.3.9,
-        mtl == 2.2.1,
-        rest-happstack == 0.2.10.3,
+        base                >=4.7 && <4.8,
+        happstack-server    == 7.3.9,
+        monad-logger        >= 0.3.11 && < 0.3.12,
+        mtl                 == 2.2.1,
+        persistent          >= 2.1.1 && <= 2.1.2,
+        persistent-sqlite   >= 2.1.1 && <= 2.1.2,
+        rest-happstack      == 0.2.10.3,
         riverd
 
 
@@ -40,6 +43,7 @@ library
         Api,
         Api.Project,
         Api.Types.Project,
+        Api.Types.RiverdApi,
         Model.Repository,
         Model.XmlGen
 

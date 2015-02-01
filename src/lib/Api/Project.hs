@@ -16,9 +16,12 @@ import Rest
 import Rest.Error
 import qualified Rest.Resource as R
 
+import Api.Types.RiverdApi
 import Api.Types.Project
 
-resource :: Resource IO (ReaderT String IO) String () Void
+
+
+resource :: Resource RiverdApi (ReaderT String RiverdApi) String () Void
 resource = mkResourceReader
     { R.name    = "project"
     , R.schema  = withListing () $ named [("title", singleBy id)]
@@ -28,7 +31,7 @@ resource = mkResourceReader
     }
 
 
-getProject :: Handler (ReaderT String IO)
+getProject :: Handler (ReaderT String RiverdApi)
 getProject = mkIdHandler xmlJsonO $ \_ titleStr -> liftIO $ readProject titleStr
 
 
@@ -36,10 +39,10 @@ readProject :: String -> IO Project
 readProject t = return $ Project "test" ""
 
 
-listProjects :: ListHandler IO
+listProjects :: ListHandler RiverdApi
 listProjects = mkListing xmlJsonO handler
     where
-        handler :: Range -> ErrorT (Reason ()) IO [Project]
+        handler :: Range -> ErrorT (Reason ()) RiverdApi [Project]
         handler r = liftIO $ readProjects (offset r) (count r)
 
 
@@ -51,10 +54,10 @@ readProjects _ _ =
             Project "test2" ""
         ]
 
-create :: Handler IO
+create :: Handler RiverdApi
 create = mkInputHandler ( xmlJsonI . xmlJsonO . xmlJsonE ) handler
     where
-        handler :: Project -> ErrorT (Reason ProjectCreationError) IO Int
+        handler :: Project -> ErrorT (Reason ProjectCreationError) RiverdApi Int
         handler p = maybe (return 200) throwError $ Just . domainReason $
                             ProjectAlreadyExists "Project exists"
 
