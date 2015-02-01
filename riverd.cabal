@@ -40,9 +40,7 @@ library
         Api,
         Api.Project,
         Api.Types.Project,
-        Model.ProjectCreationError,
         Model.Repository,
-        Model.Types,
         Model.XmlGen
 
     build-depends:
@@ -85,5 +83,6 @@ test-suite type-mapping-tests
         test-framework      >= 0.8.1 && <= 0.8.2,
         test-framework-quickcheck2  >= 0.3.0 && <= 0.3.1,
         test-framework-hunit        >= 0.3.0 && <= 0.3.1,
+        text                == 1.2.0.3,
         QuickCheck          >= 2.4 && <= 2.8,
         riverd
