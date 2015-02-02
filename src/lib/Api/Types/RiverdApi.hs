@@ -57,6 +57,6 @@ getEnvironment =
 
 getPool :: Environment -> IO DB.ConnectionPool
 getPool e = do
-    runStdoutLoggingT $ DB.createSqlitePool ":memory" 5
+    runStdoutLoggingT $ DB.createSqlitePool ":memory:" 5
 
 

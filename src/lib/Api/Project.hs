@@ -11,6 +11,7 @@ import Control.Monad.Error (runErrorT, throwError, ErrorT)
 import Control.Monad.Reader
 import Control.Monad.Trans.Maybe
 import Data.Maybe
+import Database.Persist.Class hiding (count)
 import qualified Database.Persist.Sql as DB
 import Rest
 import Rest.Error
@@ -18,8 +19,10 @@ import qualified Rest.Resource as R
 
 import Api.Types.RiverdApi
 import Api.Types.Project
+import qualified Model.Repository as Repo
 
 
+import Debug.Trace
 
 resource :: Resource RiverdApi (ReaderT String RiverdApi) String () Void
 resource = mkResourceReader
@@ -58,8 +61,18 @@ create :: Handler RiverdApi
 create = mkInputHandler ( xmlJsonI . xmlJsonO . xmlJsonE ) handler
     where
         handler :: Project -> ErrorT (Reason ProjectCreationError) RiverdApi Int
-        handler p = maybe (return 200) throwError $ Just . domainReason $
+        handler p = do
+            pool <- asks pool
+            err <- liftIO $ do
+                e <- Repo.doesProjectExist pool (name p)
+                if not e
+                    then do
+                        Repo.insertProject pool (name p) (repoUrl p) >>
+                            return Nothing
+                    else do
+                        return . Just $ domainReason $
                             ProjectAlreadyExists "Project exists"
+            maybe (return 201) throwError err
 
 
 -- | If for IO Bool
