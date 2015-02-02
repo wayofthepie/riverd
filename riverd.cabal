@@ -22,10 +22,13 @@ executable riverd
     other-modules:
     other-extensions:
     build-depends:
-        base >=4.7 && <4.8,
-        happstack-server == 7.3.9,
-        mtl == 2.2.1,
-        rest-happstack == 0.2.10.3,
+        base                >=4.7 && <4.8,
+        happstack-server    == 7.3.9,
+        monad-logger        >= 0.3.11 && < 0.3.12,
+        mtl                 == 2.2.1,
+        persistent          >= 2.1.1 && <= 2.1.2,
+        persistent-sqlite   >= 2.1.1 && <= 2.1.2,
+        rest-happstack      == 0.2.10.3,
         riverd
 
 
@@ -39,9 +42,9 @@ library
         RiverdSpec,
         Api,
         Api.Project,
-        Model.ProjectCreationError,
+        Api.Types.Project,
+        Api.Types.RiverdApi,
         Model.Repository,
-        Model.Types,
         Model.XmlGen
 
     build-depends:
@@ -84,5 +87,6 @@ test-suite type-mapping-tests
         test-framework      >= 0.8.1 && <= 0.8.2,
         test-framework-quickcheck2  >= 0.3.0 && <= 0.3.1,
         test-framework-hunit        >= 0.3.0 && <= 0.3.1,
+        text                == 1.2.0.3,
         QuickCheck          >= 2.4 && <= 2.8,
         riverd

@@ -8,6 +8,7 @@ import Data.JSON.Schema
 import Data.JSON.Schema.Validate as JSV
 import Data.Monoid
 import Data.Proxy()
+import qualified Data.Text as T
 import Data.Tree.Class
 import Data.Tree.NTree.TypeDefs
 import Test.Framework (defaultMain, defaultMainWithOpts, testGroup)
@@ -21,7 +22,7 @@ import Text.XML.HXT.Arrow.Pickle
 import Text.XML.HXT.DOM.TypeDefs
 import Text.XML.HXT.XPath.XPathEval
 
-import Model.Types
+import Api.Types.Project
 
 emptyTestOpts = mempty :: TestOptions
 
@@ -40,9 +41,7 @@ main = defaultMainWithOpts tests runnerOpts
 
 
 exampleProject :: Project
-exampleProject = Project "test"
-                    [ExternalDependency "gradle" "2.2.0" "Gradle!"]
-                    ["gradle clean build"]
+exampleProject = Project "test" "url"
 
 
 tests = [
@@ -67,7 +66,7 @@ test_validate_Project_to_Json = (JSV.isValid (schema (Proxy :: Proxy Project)) $
 pickledProject = (pickleDoc :: PU Project -> Project -> XmlTree) xpickle exampleProject
 
 
-test_validate_Project_to_Xml_Title = getValue @?= ( Just $ projectName exampleProject )
+test_validate_Project_to_Xml_Title = getValue @?= ( Just $ T.unpack $ name exampleProject )
     where
         mapXtractTxt    = fmap (\(XText t) -> t)
         mapGetNode      = fmap getNode
