@@ -34,7 +34,7 @@ Project
 createConnPool = runStdoutLoggingT $ createSqlitePool ":test:" 10
 
 runSql :: SqlPersistM a -> IO a
-runSql sql = runSqlPersistMPool sql =<< createConnPool
+runSql sql pool = runSqlPersistMPool sql pool
 
 
 
