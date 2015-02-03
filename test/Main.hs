@@ -40,22 +40,26 @@ main :: IO ()
 main = defaultMainWithOpts tests runnerOpts
 
 
-exampleProject :: Project
-exampleProject = Project "test" "url"
 
+-------------------------------------------------------------------------------
+-- | The list of tests this test module runs.
 
 tests = [
         testGroup "Json Type Validation" [
             testCase "Validate Project To Json" test_validate_Project_to_Json
         ],        testGroup "Xml TypeValidation" [
             testGroup "Validate Project To Xml" [
-                testCase "Validate Title" test_validate_Project_to_Xml_Title
+                testCase "Validate Name" test_validate_Project_to_Xml
             ]
         ]
     ]
 
-
+-------------------------------------------------------------------------------
 -- | Project type conversion tests.
+
+exampleProject :: Project
+exampleProject = Project "test" "url"
+
 
 -- | Validates whether a Project's JSON Schema is valid by converting a Project
 --  to JSON using aeson's toJSON, generating a JSON Schema with schema and
@@ -63,14 +67,26 @@ tests = [
 test_validate_Project_to_Json = (JSV.isValid (schema (Proxy :: Proxy Project)) $
         (toJSON :: Project -> Value) exampleProject) @?= True
 
-pickledProject = (pickleDoc :: PU Project -> Project -> XmlTree) xpickle exampleProject
+
+pickledProject =
+    (pickleDoc :: PU Project -> Project -> XmlTree) xpickle exampleProject
 
 
-test_validate_Project_to_Xml_Title = getValue @?= ( Just $ T.unpack $ name exampleProject )
+-- | Validate whether a project can successfully be converted into xml.
+test_validate_Project_to_Xml = do
+    getNameValue @?= ( Just $ T.unpack $ name exampleProject )
+    getUrlValue  @?= ( Just $ T.unpack $ repoUrl exampleProject )
     where
         mapXtractTxt    = fmap (\(XText t) -> t)
         mapGetNode      = fmap getNode
-        xpath           = getXPath "//project/name/text()" pickledProject
+        xpathName       = getXPath "//project/name/text()" pickledProject
+        xpathUrl        = getXPath "//project/repoUrl/text()" pickledProject
         validate xs     | length xs == 1 = Just $ head xs
                         | otherwise = Nothing
-        getValue = validate $ mapXtractTxt $ mapGetNode $ xpath
+        validateXMap xp = validate $ mapXtractTxt $ mapGetNode $ xp
+        getNameValue    = validateXMap xpathName
+        getUrlValue     = validateXMap xpathUrl
+
+
+
+
