@@ -7,6 +7,7 @@
     , MultiParamTypeClasses
     , OverloadedStrings
     , QuasiQuotes
+    , Rank2Types
     , TemplateHaskell
     , TypeFamilies
     #-}
@@ -17,6 +18,7 @@ import Control.Monad
 import Control.Monad.IO.Class
 import Control.Monad.Logger
 import Control.Monad.Trans.Control
+import Control.Monad.Trans.Reader
 import qualified Data.Text as T
 import Data.Typeable
 import Database.Persist
@@ -33,8 +35,8 @@ Project
 |]
 
 
-runSql :: ConnectionPool -> SqlPersistM a -> IO a
-runSql pool sql = runSqlPersistMPool sql pool
+runSql :: MonadBaseControl IO m => ConnectionPool -> SqlPersistT m a -> m a
+runSql pool sql = runSqlPool sql pool
 
 
 -- | insertProject name repoUrl
@@ -44,13 +46,33 @@ insertProject pool n url = runSql pool $ insert $ Project n url
 
 doesProjectExist :: ConnectionPool -> T.Text -> IO Bool
 doesProjectExist pool n = do
-    maybeProject <- runSql pool $ getBy $ UniqueName n
+    maybeProject <- getProjectByName pool n
     case maybeProject of
         Just _ -> return $ True
         Nothing -> return $ False
 
-{-
-createProject = do
-oool :: ( MonadBaseControl IO m, MonadIO m, MonadLogger IO ) => m ConnectionPool
-    (insert:: PersistEntity e => e -> m (Key e))  $ Project "" [ExternalDependency "test" "test" "test"] ["test"]
--}
+
+-- This is how much I enjoy type safety ...
+newtype Offset = Offset Int
+consOffset :: Int -> Offset
+consOffset = Offset
+
+newtype Limit = Limit Int
+consLimit :: Int -> Limit
+consLimit = Limit
+
+
+readProjects :: ConnectionPool -> Offset -> Limit -> IO [Project]
+readProjects pool (Offset off) (Limit lim) = do
+    liftM (map entityVal) $ runSql pool $ selectList []
+        [ Asc ProjectName
+        , OffsetBy off
+        , LimitTo lim ]
+
+
+getProjectByName :: ConnectionPool -> T.Text -> IO (Maybe Project)
+getProjectByName pool n = do
+    maybeProject  <- runSql pool $ getBy $ UniqueName n
+    case maybeProject of
+        Just p  -> return . Just $ entityVal p
+        Nothing -> return  Nothing
