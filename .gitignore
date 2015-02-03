@@ -37,3 +37,6 @@ tags
 
 # Vim
 *.swp
+
+# Sqlite
+:*:
