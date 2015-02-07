@@ -32,7 +32,7 @@ resource = mkResourceReader
     , R.schema  = withListing () $ unnamedSingle (\s -> s)
     , R.list    = const listBuildConfigs
 --    , R.get     = Just getBuildConfig
-    , R.create  = Just createBuild
+    , R.create  = Just createBuildConfig
     }
 
 
@@ -50,32 +50,32 @@ listBuildConfigs = mkListing xmlJsonO handler
 
 
 -- |
--- FIXME : Once build steps are passed and saved the mapping between a Build and
+-- FIXME : Once build steps are passed and saved the mapping between a BuildConfig and
 -- a BuildSpec here must be updated.
 readBuildConfigs :: DB.ConnectionPool -> Repo.Offset -> Repo.Limit -> IO [BuildSpec]
 readBuildConfigs pool off limit =
-    liftM (map (\(Repo.Build n _) -> BuildSpec n "" [])) $
+    liftM (map (\(Repo.BuildConfig n _) -> BuildSpec n "" [])) $
         Repo.readBuildConfigs pool off limit
 
 
 
 -- | Starts a new build
-createBuild :: Handler RiverdApi
-createBuild = mkInputHandler ( xmlJsonI . xmlJsonO . xmlJsonE ) handler
+createBuildConfig :: Handler RiverdApi
+createBuildConfig = mkInputHandler ( xmlJsonI . xmlJsonO . xmlJsonE ) handler
   where
-    handler :: BuildSpec -> ErrorT (Reason BuildCreationError) RiverdApi Int
+    handler :: BuildSpec -> ErrorT (Reason BuildConfigCreationError) RiverdApi Int
     handler bs = traceShow "Called" $ do
         pool <- asks pool
         err  <- liftIO $ do
             projectKey <- traceShow "PKEY" $ Repo.getProjectKeyByName pool $ projectName bs
             case projectKey of
-                Just k  -> Repo.insertBuild pool (projectName bs) k >>= \e ->
+                Just k  -> Repo.insertBuildConfig pool (projectName bs) k >>= \e ->
                         return $ maybeError e
                 Nothing -> return . Just $ domainReason $
                         ProjectDoesNotExist "Cannot create build."
         maybe (return 201) throwError err
 
-    maybeError :: Either String (Key Repo.Build) -> Maybe (Reason BuildCreationError)
+    maybeError :: Either String (Key Repo.BuildConfig) -> Maybe (Reason BuildConfigCreationError)
     maybeError e = case e of
-        Left s  -> Just $ domainReason $ BuildCreationError s
+        Left s  -> Just $ domainReason $ BuildConfigCreationError s
         Right _ -> Nothing

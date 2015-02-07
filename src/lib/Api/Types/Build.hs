@@ -33,9 +33,9 @@ data BuildStep = BuildStep
     , step        :: T.Text -- ^ Actual command to run e.g. "make"
     } deriving (Eq, Generic, Ord, Show, Typeable)
 
-data BuildCreationError =
+data BuildConfigCreationError =
     ProjectDoesNotExist String  -- ^ Specialized error
-    | BuildCreationError String -- ^ General error
+    | BuildConfigCreationError String -- ^ General error
     deriving (Eq, Generic, Ord, Show, Typeable)
 
 deriveAll ''BuildSpec "PFBuildSpec"
@@ -56,15 +56,15 @@ instance JSONSchema BuildStep where schema  = gSchema
 instance XmlPickler BuildStep where xpickle = gxpickle
 
 
-deriveAll ''BuildCreationError "PFBuildCreationError"
-type instance PF BuildCreationError = PFBuildCreationError
+deriveAll ''BuildConfigCreationError "PFBuildConfigCreationError"
+type instance PF BuildConfigCreationError = PFBuildConfigCreationError
 
-instance FromJSON   BuildCreationError
-instance ToJSON     BuildCreationError
-instance JSONSchema BuildCreationError where schema  = gSchema
-instance XmlPickler BuildCreationError where xpickle = gxpickle
+instance FromJSON   BuildConfigCreationError
+instance ToJSON     BuildConfigCreationError
+instance JSONSchema BuildConfigCreationError where schema  = gSchema
+instance XmlPickler BuildConfigCreationError where xpickle = gxpickle
 
-instance ToResponseCode BuildCreationError where
+instance ToResponseCode BuildConfigCreationError where
     toResponseCode _ = 418
 
 

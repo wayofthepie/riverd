@@ -34,10 +34,10 @@ Project
     name        T.Text
     repoUrl     T.Text
     UniqueName  name
-Build
-    bName           T.Text
-    projectId       ProjectId
-    UniqueBuildName bName
+BuildConfig
+    bcName       T.Text
+    projectId    ProjectId
+    UniqueBCName bcName
 |]
 
 
@@ -108,37 +108,37 @@ getProjectKeyByName pool n = do
 
 
 -------------------------------------------------------------------------------
--- Build functions
+-- BuildConfig functions
 
 -- |
 -- FIXME: Is it right to just return a string error message if any
 -- exception occurs...?
-insertBuild :: ConnectionPool -> T.Text -> Key Project -> IO (Either String (Key Build))
-insertBuild pool bname projectId = do
-    maybeBuild <- doesBuildExist pool bname
-    case maybeBuild of
+insertBuildConfig :: ConnectionPool -> T.Text -> Key Project -> IO (Either String (Key BuildConfig))
+insertBuildConfig pool bname projectId = do
+    maybeBuildConfig <- doesBuildConfigExist pool bname
+    case maybeBuildConfig of
         True  -> return $ Left "A build already exists."
-        False -> insertBuild' pool $ Build bname projectId
+        False -> insertBuildConfig' pool $ BuildConfig bname projectId
 
-insertBuild' ::
-    ConnectionPool -> Build -> IO (Either String (Key Build))
-insertBuild' pool b = do
-    e <- traceShow "inserting b"$ try (runSql pool $ insert b) :: IO (Either PersistentSqlException (Key Build))
+insertBuildConfig' ::
+    ConnectionPool -> BuildConfig -> IO (Either String (Key BuildConfig))
+insertBuildConfig' pool b = do
+    e <- traceShow "inserting b"$ try (runSql pool $ insert b) :: IO (Either PersistentSqlException (Key BuildConfig))
     case e of
         Right a -> return $ Right a
         Left ex -> return $ Left $ "An exception of " ++ show ex
 
-doesBuildExist :: ConnectionPool -> T.Text -> IO Bool
-doesBuildExist pool n = do
-    maybeBuild <- runSql pool $ getBy $ UniqueBuildName n
-    case maybeBuild of
-        Just b  -> return $ True
-        Nothing -> return $ False
+doesBuildConfigExist :: ConnectionPool -> T.Text -> IO Bool
+doesBuildConfigExist pool n = do
+    maybeBuildConfig <- runSql pool $ getBy $ UniqueBCName n
+    case maybeBuildConfig of
+        Just b  -> return True
+        Nothing -> return False
 
-readBuildConfigs :: ConnectionPool -> Offset -> Limit -> IO [Build]
+readBuildConfigs :: ConnectionPool -> Offset -> Limit -> IO [BuildConfig]
 readBuildConfigs pool (Offset off) (Limit lim) = do
     liftM (map entityVal) $ runSql pool $ selectList []
-        [ Asc BuildBName
+        [ Asc BuildConfigBcName
         , OffsetBy off
         , LimitTo lim ]
 
