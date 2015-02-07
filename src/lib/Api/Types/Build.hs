@@ -33,7 +33,9 @@ data BuildStep = BuildStep
     , step        :: T.Text -- ^ Actual command to run e.g. "make"
     } deriving (Eq, Generic, Ord, Show, Typeable)
 
-data BuildCreationError = ProjectDoesNotExist String
+data BuildCreationError =
+    ProjectDoesNotExist String  -- ^ Specialized error
+    | BuildCreationError String -- ^ General error
     deriving (Eq, Generic, Ord, Show, Typeable)
 
 deriveAll ''BuildSpec "PFBuildSpec"
