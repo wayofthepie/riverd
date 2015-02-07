@@ -1,9 +1,12 @@
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE EmptyDataDecls #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE
+    DeriveDataTypeable
+    , DeriveGeneric
+    , EmptyDataDecls
+    , OverloadedStrings
+    , TemplateHaskell
+    , TypeFamilies
+    #-}
+
 
 module Api.Project where
 
