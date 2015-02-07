@@ -31,13 +31,18 @@ Project
     name        T.Text
     repoUrl     T.Text
     UniqueName  name
-    deriving Eq Generic Read Typeable Show
+Build
+    buildName       T.Text
+    projectId       ProjectId
+    UniqueBuildName buildName
 |]
 
 
 runSql :: MonadBaseControl IO m => ConnectionPool -> SqlPersistT m a -> m a
 runSql pool sql = runSqlPool sql pool
 
+-------------------------------------------------------------------------------
+-- Project functions
 
 -- | insertProject name repoUrl
 insertProject :: ConnectionPool -> T.Text -> T.Text -> IO (Key Project)
@@ -76,3 +81,16 @@ getProjectByName pool n = do
     case maybeProject of
         Just p  -> return . Just $ entityVal p
         Nothing -> return  Nothing
+
+getProjectKeyByName :: ConnectionPool -> T.Text -> IO (Maybe (Key Project))
+getProjectKeyByName pool n = do
+    maybeProject  <- runSql pool $ getBy $ UniqueName n
+    case maybeProject of
+        Just p  -> return . Just $ entityKey p
+        Nothing -> return  Nothing
+
+
+-------------------------------------------------------------------------------
+-- Build functions
+insertBuild :: ConnectionPool -> T.Text -> Key Project -> IO (Key Build)
+insertBuild pool bname projectId = runSql pool $ insert $ Build bname projectId

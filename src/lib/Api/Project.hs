@@ -29,7 +29,7 @@ import qualified Model.Repository as Repo
 import Debug.Trace
 
 resource :: Resource RiverdApi (ReaderT String RiverdApi) String () Void
-resource = mkResourceReader
+resource = traceShow "Proj resource ..>" $ mkResourceReader
     { R.name    = "project"
     , R.schema  = withListing () $ named [("name", singleBy id)]
     , R.list    = const listProjects
@@ -84,7 +84,7 @@ create :: Handler RiverdApi
 create = mkInputHandler ( xmlJsonI . xmlJsonO . xmlJsonE ) handler
   where
     handler :: Project -> ErrorT (Reason ProjectCreationError) RiverdApi Int
-    handler p = do
+    handler p =traceShow "Called create project .." $ do
         pool <- asks pool
         err <- liftIO $ do
             e <- Repo.doesProjectExist pool (name p)
